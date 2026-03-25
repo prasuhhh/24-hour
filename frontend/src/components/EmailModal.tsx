@@ -5,6 +5,9 @@ export const EmailModal = ({ isOpen, onClose, obId, recName, recAmount }: any) =
   const [typing, setTyping] = useState(false);
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    let isMounted = true;
+    
     if (isOpen) {
       setEmailText('');
       setTyping(true);
@@ -15,16 +18,16 @@ export const EmailModal = ({ isOpen, onClose, obId, recName, recAmount }: any) =
       })
       .then(r => r.json())
       .then(data => {
+        if (!isMounted) return;
         if (data.text) {
-          // Typewriter effect
           let i = 0;
           const text = data.text;
-          const interval = setInterval(() => {
+          interval = setInterval(() => {
             setEmailText(prev => prev + text.charAt(i));
             i++;
-            if (i >= text.length - 1) { // text.length - 1 to handle exact bounds safely
+            if (i >= text.length) {
               clearInterval(interval);
-              setTyping(false);
+              if (isMounted) setTyping(false);
             }
           }, 15);
         } else if (data.error) {
@@ -33,10 +36,16 @@ export const EmailModal = ({ isOpen, onClose, obId, recName, recAmount }: any) =
         }
       })
       .catch(e => {
+        if (!isMounted) return;
         setEmailText('Error generating email.');
         setTyping(false);
       });
     }
+    
+    return () => {
+      isMounted = false;
+      if (interval) clearInterval(interval);
+    };
   }, [isOpen, obId, recName, recAmount]);
 
   if (!isOpen) return null;

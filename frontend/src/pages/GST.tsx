@@ -1,5 +1,17 @@
+import React from 'react';
+import { useAppContext } from '../context/AppContext';
 
 export const GST = () => {
+  const { obligations, dashboardState } = useAppContext();
+  const gstOb = obligations.find(o => o.type === 'gst');
+  
+  const netLiability = gstOb ? gstOb.amount : 0;
+  const outputTax = netLiability * 1.5;
+  const inputCredit = netLiability * 0.5;
+  const cashAvailable = dashboardState.bankBalance || 0;
+  const isSufficient = cashAvailable >= netLiability;
+  const daysUntil = gstOb ? gstOb.daysUntil : 0;
+  
   return (
     <div className="page active">
       <div className="page-header">
@@ -8,40 +20,49 @@ export const GST = () => {
           <div className="page-subtitle">FILING COUNTDOWN · LIABILITY ESTIMATOR · ALERTS</div>
         </div>
       </div>
-      <div className="gst-deadline-card">
-        <div>
-          <div className="gst-type syne">GST-R3B Filing</div>
-          <div className="gst-due-date mono">Due: 20th October 2025</div>
-          <div style={{ marginTop: 16, fontSize: 11, color: 'var(--amber)', opacity: 0.8 }}>Days remaining</div>
-          <div className="gst-big-countdown mono">08</div>
-          <div className="gst-countdown-label mono">days · 07 hours · 23 mins</div>
+      {gstOb ? (
+        <div className="gst-deadline-card">
+          <div>
+            <div className="gst-type syne">{gstOb.name} Filing</div>
+            <div className="gst-due-date mono">Due: {gstOb.dueDate} 2025</div>
+            <div style={{ marginTop: 16, fontSize: 11, color: 'var(--amber)', opacity: 0.8 }}>Days remaining</div>
+            <div className="gst-big-countdown mono">{daysUntil < 10 ? `0${daysUntil}` : daysUntil}</div>
+            <div className="gst-countdown-label mono">days · 07 hours · 23 mins</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginBottom: 4 }}>STATUS</div>
+            <div style={{ background: 'var(--amber-bg)', border: '1px solid var(--amber-border)', borderRadius: 7, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: 'var(--amber)', fontFamily: "JetBrains Mono" }}>
+              {daysUntil <= 3 ? 'CRITICAL · FILE SOON' : 'AMBER · WATCH'}
+            </div>
+          </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginBottom: 4 }}>STATUS</div>
-          <div style={{ background: 'var(--amber-bg)', border: '1px solid var(--amber-border)', borderRadius: 7, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: 'var(--amber)', fontFamily: "JetBrains Mono" }}>AMBER · WATCH</div>
+      ) : (
+        <div className="gst-deadline-card">
+          <div className="gst-type syne">No Pending GST</div>
+          <div className="gst-due-date mono">All caught up!</div>
         </div>
-      </div>
+      )}
 
       <div className="gst-liability-row">
         <div className="gst-lcard">
           <div className="gst-lcard-label">Output tax (sales)</div>
-          <div className="gst-lcard-val" style={{ color: 'var(--red)' }}>₹18,600</div>
-          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>Based on 12 invoices this month</div>
+          <div className="gst-lcard-val" style={{ color: 'var(--red)' }}>₹{outputTax.toLocaleString('en-IN')}</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>Estimated projection</div>
         </div>
         <div className="gst-lcard">
           <div className="gst-lcard-label">Input credit (purchases)</div>
-          <div className="gst-lcard-val" style={{ color: 'var(--green)' }}>₹6,200</div>
-          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>7 purchase invoices with GST</div>
+          <div className="gst-lcard-val" style={{ color: 'var(--green)' }}>₹{inputCredit.toLocaleString('en-IN')}</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>Estimated ITC</div>
         </div>
         <div className="gst-lcard">
           <div className="gst-lcard-label">Net liability estimate</div>
-          <div className="gst-lcard-val" style={{ color: 'var(--amber)' }}>₹12,400</div>
+          <div className="gst-lcard-val" style={{ color: 'var(--amber)' }}>₹{netLiability.toLocaleString('en-IN')}</div>
           <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>±15% margin · confirm with CA</div>
         </div>
         <div className="gst-lcard">
           <div className="gst-lcard-label">Cash available to pay</div>
-          <div className="gst-lcard-val" style={{ color: 'var(--green)' }}>₹80,000</div>
-          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>Sufficient for GST payment</div>
+          <div className="gst-lcard-val" style={{ color: isSufficient ? 'var(--green)' : 'var(--red)' }}>₹{cashAvailable.toLocaleString('en-IN')}</div>
+          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginTop: 2 }}>{isSufficient ? 'Sufficient for GST payment' : 'Insufficient cash buffer'}</div>
         </div>
       </div>
 
@@ -59,7 +80,7 @@ export const GST = () => {
         </div>
       </div>
 
-      <button className="gst-portal-btn">File on GST Portal →</button>
+      <button className="gst-portal-btn" onClick={() => window.open('https://services.gst.gov.in/services/login', '_blank')}>File on GST Portal →</button>
     </div>
   );
 };

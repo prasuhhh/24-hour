@@ -13,7 +13,7 @@ export const Obligations = () => {
     await fetch('http://localhost:5001/api/obligations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({ ...formData, amount: Number(formData.amount) })
     });
     fetchData();
     setShowAdd(false);

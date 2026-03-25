@@ -5,6 +5,35 @@ export const WhatIf = () => {
   const [params, setParams] = useState({ bal: 80000, muraliEarly: 0, karimDelay: 0, loanDraw: 0, buf: 10000 });
   const [d2z, setD2z] = useState(14);
   const [explain, setExplain] = useState('Current scenario: Oct 14 remains the critical tight day.');
+  const [nlInput, setNlInput] = useState('');
+  const [isProcessingNL, setIsProcessingNL] = useState(false);
+
+  const handleNLSubmit = async () => {
+    if (!nlInput.trim()) return;
+    setIsProcessingNL(true);
+    try {
+      const res = await fetch('http://localhost:5001/api/ai/whatif-nl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: nlInput, currentParams: params })
+      });
+      if (res.ok) {
+        const newParams = await res.json();
+        setParams(newParams);
+        setNlInput('');
+      } else {
+        alert('Could not process scenario. Please ensure backend is running with Gemini API key.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error connecting to AI simulator.');
+    }
+    setIsProcessingNL(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleNLSubmit();
+  }
 
   useEffect(() => {
     fetch('http://localhost:5001/api/dashboard/whatif', {
@@ -32,6 +61,28 @@ export const WhatIf = () => {
           <div className="page-subtitle">ADJUST VARIABLES · INSTANT D2Z RECALCULATION</div>
         </div>
       </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="card-body" style={{ display: 'flex', gap: 10, padding: '16px 20px' }}>
+           <input 
+             className="form-input" 
+             style={{ flex: 1, margin: 0 }} 
+             placeholder="Type a scenario e.g. 'What if I delay Karim by 5 days and draw 5000 from Suresh?'" 
+             value={nlInput} 
+             onChange={e => setNlInput(e.target.value)} 
+             onKeyDown={handleKeyDown}
+             disabled={isProcessingNL}
+           />
+           <button 
+             className="btn-add" 
+             style={{ padding: '0 24px', margin: 0, height: '42px', justifySelf: 'flex-end', alignSelf: 'center' }}
+             onClick={handleNLSubmit}
+             disabled={isProcessingNL}
+           >
+             {isProcessingNL ? 'Thinking...' : 'Simulate'}
+           </button>
+        </div>
+      </div>
       <div className="wi-card">
         <div style={{ fontFamily: 'Syne', fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Adjust scenario parameters</div>
         <div className="wi-row"><span className="wi-label">Current bank balance (₹)</span><input className="wi-input" type="number" value={params.bal} onChange={e=>setParams({...params, bal:parseInt(e.target.value)||0})} /></div>
@@ -41,8 +92,8 @@ export const WhatIf = () => {
         <div className="wi-row"><span className="wi-label">Safety buffer threshold (₹)</span><input className="wi-input" type="number" value={params.buf} onChange={e=>setParams({...params, buf:parseInt(e.target.value)||0})} /></div>
         <div className="wi-result-box">
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginBottom: 3 }}>PROJECTED DAYS TO ZERO</div>
-            <div style={{ fontSize: 11, color: 'var(--text3)', fontFamily: "JetBrains Mono" }}>Based on your adjustments</div>
+            <div style={{ fontSize: 12, color: 'var(--text3)', fontFamily: "JetBrains Mono", marginBottom: 4 }}>PROJECTED DAYS TO ZERO</div>
+            <div style={{ fontSize: 12, color: 'var(--text3)', fontFamily: "JetBrains Mono" }}>Based on your adjustments</div>
           </div>
           <div className="wi-result-val" style={{ color: d2z >= 30 ? 'var(--green)' : d2z >= 15 ? 'var(--amber)' : 'var(--red)' }}>{d2z} days</div>
         </div>

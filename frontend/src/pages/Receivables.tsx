@@ -13,7 +13,7 @@ export const Receivables = () => {
     await fetch('http://localhost:5001/api/receivables', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({ ...formData, amount: Number(formData.amount), confidence: Number(formData.confidence) })
     });
     fetchData();
     setShowAdd(false);

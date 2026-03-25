@@ -1,7 +1,10 @@
 import { useAppContext } from '../context/AppContext';
 
 export const Sidebar = ({ activePage, setActivePage }: any) => {
-  const { dashboardState } = useAppContext();
+  const { dashboardState, obligations } = useAppContext();
+  const gstOb = obligations?.find((o: any) => o.type === 'gst');
+  const daysCount = gstOb ? gstOb.daysUntil : 0;
+  const displayDays = daysCount < 10 ? `0${daysCount}` : daysCount.toString();
 
   return (
     <aside className="sidebar">
@@ -48,7 +51,7 @@ export const Sidebar = ({ activePage, setActivePage }: any) => {
         <div className={`nav-item ${activePage === 'gst' ? 'active' : ''}`} onClick={() => setActivePage('gst')}>
           <svg className="ni" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.1"/><path d="M5 7h4M7 5v4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>
           GST compliance
-          <span className="nbadge amber">8d</span>
+          {gstOb && <span className="nbadge amber">{daysCount}d</span>}
         </div>
 
         <div className="nav-section-label">Money in</div>
@@ -69,14 +72,16 @@ export const Sidebar = ({ activePage, setActivePage }: any) => {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="gst-block">
-          <div className="gst-top">
-            <div className="gst-dot"></div>
-            <div className="gst-label">GST-R3B</div>
+        {gstOb && (
+          <div className="gst-block">
+            <div className="gst-top">
+              <div className="gst-dot"></div>
+              <div className="gst-label">{gstOb.name.split(' ')[0]}</div>
+            </div>
+            <div className="gst-countdown mono">{displayDays}<span style={{fontSize:'13px',opacity:0.6}}> days</span></div>
+            <div className="gst-detail">Est. liability <span style={{color:'var(--amber)',fontWeight:600}}>₹{gstOb.amount.toLocaleString('en-IN')}</span></div>
           </div>
-          <div className="gst-countdown mono">08<span style={{fontSize:'13px',opacity:0.6}}> days</span></div>
-          <div className="gst-detail">Est. liability <span style={{color:'var(--amber)',fontWeight:600}}>₹12,400</span></div>
-        </div>
+        )}
       </div>
     </aside>
   );

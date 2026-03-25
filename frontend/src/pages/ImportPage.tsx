@@ -23,20 +23,22 @@ export const ImportPage = () => {
   };
 
   const handleUpload = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) return;
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      for (const file of files as any[]) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const r = await fetch('http://localhost:5001/api/transactions/parse', {
-        method: 'POST',
-        body: formData
-      });
-      if (!r.ok) throw new Error('File processing failed on server');
+        const r = await fetch('http://localhost:5001/api/transactions/parse', {
+          method: 'POST',
+          body: formData
+        });
+        if (!r.ok) throw new Error('File processing failed on server for ' + file.name);
+      }
       fetchTx();
     } catch (err: any) {
-      alert('Error uploading file: ' + err.message);
+      alert('Error uploading files: ' + err.message);
     }
   };
 
@@ -49,25 +51,17 @@ export const ImportPage = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <div>
-          <div className="section-lbl">Bank statements & invoices</div>
-          <label className="upload-zone" style={{ display: 'block', position: 'relative' }}>
-            <svg viewBox="0 0 36 36" className="upload-icon" fill="none"><rect x="4" y="6" width="28" height="24" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M12 18h12M18 12v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-            <div className="upload-title">Drop PDF or CSV here (Click to upload)</div>
-            <div className="upload-sub">Bank statement · Invoice<br/>Supported: .pdf .csv .xlsx</div>
-            <input type="file" className="upload-input" accept=".pdf,.csv,.xlsx" onChange={handleUpload} />
-          </label>
-        </div>
-        <div>
-          <div className="section-lbl">Receipt photos (OCR extraction)</div>
-          <label className="upload-zone" style={{ display: 'block', position: 'relative' }}>
-            <svg viewBox="0 0 36 36" className="upload-icon" fill="none"><rect x="4" y="8" width="28" height="22" rx="3" stroke="currentColor" strokeWidth="1.5"/><circle cx="14" cy="17" r="3" stroke="currentColor" strokeWidth="1.5"/><path d="M4 24l8-6 6 5 5-4 9 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            <div className="upload-title">Drop receipt images here (Click to upload)</div>
-            <div className="upload-sub">Handwritten · printed · WhatsApp<br/>Supported: .jpg .png</div>
-            <input type="file" className="upload-input" accept=".jpg,.png,.jpeg" onChange={handleUpload} />
-          </label>
-        </div>
+      <div style={{ marginBottom: 16 }}>
+        <div className="section-lbl">Universal Document Importer</div>
+        <label className="upload-zone" style={{ display: 'block', position: 'relative', padding: 36 }}>
+          <svg viewBox="0 0 36 36" className="upload-icon" fill="none" style={{ width: 44, height: 44, marginBottom: 12 }}>
+            <rect x="4" y="6" width="28" height="24" rx="3" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M12 18h12M18 12v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <div className="upload-title" style={{ fontSize: 14 }}>Drop financial documents or images here (Click to upload)</div>
+          <div className="upload-sub" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.6 }}>Bank statements · Invoices · Receipt photos · Handwritten notes<br/>Supported: .pdf, .csv, .xlsx, .jpg, .png</div>
+          <input type="file" multiple className="upload-input" accept=".pdf,.csv,.xlsx,.jpg,.png,.jpeg" onChange={handleUpload} />
+        </label>
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>

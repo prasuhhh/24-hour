@@ -301,8 +301,8 @@ input,select,textarea{font-family:'JetBrains Mono',monospace;font-size:12px}
 .wi-label{font-size:11px;color:var(--text2);width:200px;flex-shrink:0}
 .wi-input{flex:1;height:34px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:0 12px;color:var(--text)}
 .wi-input:focus{outline:none;border-color:var(--accent)}
-.wi-result-box{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
-.wi-result-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500}
+.wi-result-box{background:var(--surface3);border:2px solid var(--border2);border-radius:12px;padding:22px 24px;display:flex;justify-content:space-between;align-items:center;margin-top:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+.wi-result-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-1px}
 .wi-explain{font-size:11px;color:var(--text3);margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:7px;border-left:2px solid var(--accent);line-height:1.6}
 
 /* ── ADD FORM ── */
@@ -381,7 +381,13 @@ input,select,textarea{font-family:'JetBrains Mono',monospace;font-size:12px}
 .btn-primary{background:var(--accent);color:#000;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif}
 .btn-primary:hover{opacity:0.85}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+/* ── AI INSIGHTS ── */
+.pulse-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;position:relative;display:inline-block}
+.pulse-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--accent);animation:pulse-ring 2s infinite;opacity:0}
+@keyframes pulse-ring{0%{transform:scale(0.5);opacity:0}50%{opacity:0.5}100%{transform:scale(1.5);opacity:0}}
+
+.alert-card{transition:transform 0.2s,border-color 0.2s;cursor:default}
+.alert-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.severity-tag.high{color:var(--red)}
+.severity-tag.medium{color:var(--amber)}
+.severity-tag.low{color:var(--blue)}

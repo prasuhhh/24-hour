@@ -5,11 +5,21 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, BarController, LineController);
 
 export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) => {
-  const { dashboardState, obligations, receivables, loans, theme } = useAppContext();
-  const d2z = dashboardState.currentD2Z;
+  const { dashboardState, obligations, receivables, loans, theme, mode } = useAppContext();
+  const isCons = mode === 'conservative';
+  const d2z = isCons ? Math.max(0, dashboardState.currentD2Z - 5) : dashboardState.currentD2Z;
+  const filteredReceivables = isCons ? receivables.filter((r: any) => r.confidence >= 80) : receivables;
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstRef = useRef<any>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
+  const [alerts, setAlerts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5001/api/alerts')
+      .then(res => res.json())
+      .then(data => setAlerts(Array.isArray(data) ? data : []))
+      .catch(err => console.error("Failed to fetch alerts", err));
+  }, []);
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -24,13 +34,15 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
       const d = new Date(today); d.setDate(d.getDate() + i);
       labels.push((d.getDate()) + '/' + (d.getMonth() + 1));
       let inp = 0, out = 0;
-      if (i === 3) out = 25001;
-      if (i === 7) out = 35001;
-      if (i === 11) { inp = 15001; out = 12400; }
-      if (i === 14) inp = 8000;
-      if (i === 15) out = 8000;
-      if (i === 18) out = 3200;
-      if (i === 23) inp = 32000;
+      const delay = isCons ? 5 : 0;
+      if (i === 3) out += 25001;
+      if (i === 7) out += 35001;
+      if (i === 11 + delay) inp += 15001;
+      if (i === 11) out += 12400;
+      if (i === 14 + delay) inp += 8000;
+      if (i === 15) out += 8000;
+      if (i === 18) out += 3200;
+      if (i === 23 + delay) inp += 32000;
       inArr.push(inp); outArr.push(-out); cash = cash + inp - out; balArr.push(cash);
     }
     
@@ -66,7 +78,7 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
     return () => {
       if (chartInstRef.current) chartInstRef.current.destroy();
     };
-  }, [theme]);
+  }, [theme, mode]);
 
   const renderOb = (ob: any) => {
     const sClass = ob.score >= 8 ? 'high' : ob.score >= 5 ? 'med' : 'low';
@@ -137,6 +149,35 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
         <button className="btn-primary" onClick={() => navigate('upload')}>+ Import data</button>
       </div>
 
+      {alerts.length > 0 ? (
+        <div className="alerts-container" style={{ marginBottom: 20 }}>
+          <div className="section-label syne" style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className="pulse-dot"></span> AI INSIGHTS & TRENDS
+          </div>
+          <div className="alerts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12 }}>
+            {alerts.map((alert, idx) => (
+              <div key={idx} className={`alert-card severity-${alert.severity}`} style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg2)', position: 'relative', overflow: 'hidden' }}>
+                <div className="alert-accent" style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: alert.severity === 'high' ? 'var(--red)' : alert.severity === 'medium' ? 'var(--amber)' : 'var(--blue)' }}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                  <span className="mono" style={{ fontSize: 9, opacity: 0.6, textTransform: 'uppercase' }}>{alert.metric} · {alert.type.replace('_', ' ')}</span>
+                  <span className={`severity-tag ${alert.severity}`} style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: 'var(--bg3)', border: '1px solid var(--border)' }}>{alert.severity.toUpperCase()}</span>
+                </div>
+                <div className="syne" style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{alert.message}</div>
+                <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 8 }}>{alert.insight}</div>
+                <div style={{ fontSize: 11, color: 'var(--blue)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 14 }}>→</span> {alert.action}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="alerts-stable" style={{ marginBottom: 20, padding: '10px 16px', borderRadius: 8, background: 'rgba(0,229,160,0.05)', border: '1px solid rgba(0,229,160,0.1)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--green)' }}></div>
+          <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--green)' }}>All systems stable. No urgent financial anomalies detected.</span>
+        </div>
+      )}
+
       <div className="stat-row">
         <div className={`stat-card ${d2z >= 30 ? 'green' : d2z >= 10 ? 'amber' : 'red'}`}>
           <div className="stat-label">days to zero</div>
@@ -150,8 +191,8 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
         </div>
         <div className="stat-card green">
           <div className="stat-label">expected inflows / 30d</div>
-          <div className="stat-value">₹55,000</div>
-          <div className="stat-sub">{receivables.length} receivables tracked</div>
+          <div className="stat-value">₹{isCons ? '23,000' : '55,000'}</div>
+          <div className="stat-sub">{filteredReceivables.length} {isCons ? 'high-confidence receivables' : 'receivables tracked'}</div>
         </div>
         <div className="stat-card blue">
           <div className="stat-label">informal buffer</div>
@@ -224,7 +265,7 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
           <div className="card-header"><span className="card-title syne">Inflow confidence</span><span style={{ fontSize: 10, color: 'var(--text3)' }} className="mono">receivables tracker</span></div>
           <div className="card-body" style={{ padding: '10px 14px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {receivables?.slice(0, 3).map(renderRec)}
+              {filteredReceivables?.slice(0, 3).map(renderRec)}
             </div>
           </div>
         </div>
