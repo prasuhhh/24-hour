@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ThavanAI — Cash Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── THEMES ── */
+[data-theme="dark"]{
+  --bg:#0A0B0D;
+  --bg2:#0F1114;
+  --bg3:#141619;
+  --surface:#16181C;
+  --surface2:#1C1F24;
+  --surface3:#22262D;
+  --border:#2A2E38;
+  --border2:#343840;
+  --text:#E8EAF0;
+  --text2:#9BA3B2;
+  --text3:#5A6070;
+  --accent:#00E5A0;
+  --accent2:#00B87A;
+  --accent-bg:rgba(0,229,160,0.08);
+  --accent-border:rgba(0,229,160,0.25);
+  --red:#FF4D6A;
+  --red-bg:rgba(255,77,106,0.1);
+  --red-border:rgba(255,77,106,0.3);
+  --amber:#FFB830;
+  --amber-bg:rgba(255,184,48,0.1);
+  --amber-border:rgba(255,184,48,0.3);
+  --green:#00E5A0;
+  --green-bg:rgba(0,229,160,0.1);
+  --green-border:rgba(0,229,160,0.3);
+  --blue:#4D9EFF;
+  --blue-bg:rgba(77,158,255,0.1);
+  --blue-border:rgba(77,158,255,0.3);
+  --purple:#B06DFF;
+  --purple-bg:rgba(176,109,255,0.1);
+  --purple-border:rgba(176,109,255,0.3);
+  --grid-color:rgba(255,255,255,0.03);
+  --scan-line:rgba(0,229,160,0.02);
+}
+[data-theme="light"]{
+  --bg:#F4F2EC;
+  --bg2:#EDE9E0;
+  --bg3:#E6E2D8;
+  --surface:#FFFFFF;
+  --surface2:#F9F7F2;
+  --surface3:#F0EDE4;
+  --border:#DDD9CE;
+  --border2:#C8C4BA;
+  --text:#1A1814;
+  --text2:#6B6560;
+  --text3:#9C9890;
+  --accent:#006644;
+  --accent2:#004D33;
+  --accent-bg:rgba(0,102,68,0.07);
+  --accent-border:rgba(0,102,68,0.2);
+  --red:#C0192A;
+  --red-bg:rgba(192,25,42,0.08);
+  --red-border:rgba(192,25,42,0.25);
+  --amber:#8A5500;
+  --amber-bg:rgba(138,85,0,0.08);
+  --amber-border:rgba(138,85,0,0.25);
+  --green:#006644;
+  --green-bg:rgba(0,102,68,0.08);
+  --green-border:rgba(0,102,68,0.25);
+  --blue:#1A4A8A;
+  --blue-bg:rgba(26,74,138,0.08);
+  --blue-border:rgba(26,74,138,0.25);
+  --purple:#5A1F8A;
+  --purple-bg:rgba(90,31,138,0.08);
+  --purple-border:rgba(90,31,138,0.25);
+  --grid-color:rgba(0,0,0,0.04);
+  --scan-line:rgba(0,102,68,0.03);
+}
+
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.6;transition:background 0.3s,color 0.3s;overflow-x:hidden}
+button{font-family:'Instrument Sans',sans-serif;cursor:pointer;border:none;outline:none;transition:all 0.15s}
+input,select,textarea{font-family:'JetBrains Mono',monospace;font-size:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+.syne{font-family:'Syne',sans-serif}
+
+/* ── GRID BG ── */
+[data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-color) 1px,transparent 1px),linear-gradient(90deg,var(--grid-color) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.brand-row{display:flex;align-items:center;gap:10px}
+.brand-mark{width:36px;height:36px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-mark svg{width:20px;height:20px}
+.brand-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
+.brand-tag{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;letter-spacing:0.05em}
+
+.biz-panel{margin:12px;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:10px}
+.biz-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.biz-loc{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.biz-balance-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:10px;font-family:'JetBrains Mono',monospace}
+.biz-balance{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;color:var(--accent);margin-top:2px;letter-spacing:-0.5px}
+
+.nav{padding:8px;flex:1;overflow-y:auto}
+.nav-section-label{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;padding:10px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:all 0.15s;margin-bottom:1px;position:relative}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.nav-item.active .ni{color:var(--accent)}
+.ni{width:14px;height:14px;flex-shrink:0;opacity:0.6}
+.nav-item.active .ni{opacity:1}
+.nbadge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;background:var(--red);color:#fff;font-family:'JetBrains Mono',monospace}
+.nbadge.amber{background:var(--amber)}
+.nbadge.green{background:var(--green);color:#000}
+
+/* ── GST FOOTER ── */
+.sidebar-footer{padding:10px;border-top:1px solid var(--border)}
+.gst-block{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:9px 11px}
+.gst-top{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.gst-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.gst-label{font-size:10px;font-weight:600;color:var(--amber);font-family:'JetBrains Mono',monospace}
+.gst-detail{font-size:11px;color:var(--text2);line-height:1.5}
+.gst-countdown{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--amber);margin-top:4px}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;height:52px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+.runway-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap;letter-spacing:0.05em}
+.runway-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative}
+.runway-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1),background 0.4s}
+.d2z-chip{display:flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;font-family:'JetBrains Mono',monospace;border:1px solid}
+.d2z-chip.green{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.d2z-chip.amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.d2z-chip.red{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.d2z-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.d2z-chip.red .d2z-dot{animation:blink 1.2s infinite}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.mode-toggle-wrap{display:flex;align-items:center;gap:7px}
+.mode-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.toggle-pill{width:40px;height:22px;background:var(--surface3);border:1px solid var(--border2);border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle-pill.on{background:var(--accent-bg);border-color:var(--accent-border)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:var(--text3);border-radius:50%;transition:all 0.2s}
+.toggle-pill.on .toggle-thumb{left:21px;background:var(--accent)}
+.theme-btn{width:30px;height:30px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;transition:all 0.2s}
+.theme-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.page{display:none;flex:1;overflow-y:auto;padding:20px 22px}
+.page.active{display:block}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.page-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.page-subtitle{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* ── STAT ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.red::before{background:var(--red)}
+.stat-card.amber::before{background:var(--amber)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-0.5px}
+.stat-card.red .stat-value{color:var(--red)}
+.stat-card.amber .stat-value{color:var(--amber)}
+.stat-card.green .stat-value{color:var(--green)}
+.stat-card.blue .stat-value{color:var(--blue)}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
+.card-body{padding:16px}
+
+/* ── MAIN GRID ── */
+.dash-grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:14px}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* ── CHART ── */
+.chart-wrap{height:190px;position:relative}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.legend-swatch{width:10px;height:4px;border-radius:2px}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface2);position:relative}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--accent-bg)}
+.upload-icon{width:36px;height:36px;margin:0 auto 10px;color:var(--text3)}
+.upload-zone:hover .upload-icon,.upload-zone.dragover .upload-icon{color:var(--accent)}
+.upload-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.upload-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.upload-input{display:none}
+.uploaded-files{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.uploaded-file{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--surface);border:1px solid var(--border);border-radius:7px}
+.file-icon{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.file-icon.pdf{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.file-icon.img{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.file-icon.csv{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.file-name{font-size:11px;font-weight:500;color:var(--text);flex:1;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-size{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.file-remove{width:20px;height:20px;border-radius:4px;background:transparent;color:var(--text3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0}
+.file-remove:hover{background:var(--red-bg);color:var(--red)}
+.file-status{font-size:9px;font-family:'JetBrains Mono',monospace;padding:1px 6px;border-radius:4px;white-space:nowrap}
+.file-status.processing{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.file-status.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.process-btn{width:100%;margin-top:12px;padding:10px;background:var(--accent);color:#000;border-radius:8px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:0.02em;transition:opacity 0.2s}
+.process-btn:hover{opacity:0.85}
+.process-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* ── CRISIS CARD ── */
+.crisis-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.crisis-top{padding:14px 16px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.crisis-top:hover{background:var(--surface2)}
+.crisis-indicator{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.crisis-indicator.red{background:var(--red);animation:blink 1.2s infinite}
+.crisis-indicator.amber{background:var(--amber)}
+.crisis-indicator.green{background:var(--green)}
+.crisis-text{flex:1}
+.crisis-date{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
+.crisis-desc{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.crisis-num{text-align:right}
+.crisis-days-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;line-height:1}
+.crisis-days-num.red{color:var(--red)}
+.crisis-days-num.amber{color:var(--amber)}
+.crisis-days-num.green{color:var(--green)}
+.crisis-days-label{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.crisis-expanded{border-top:1px solid var(--border);padding:14px 16px;display:none}
+.cob-table{width:100%;margin-bottom:10px}
+.cob-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.cob-row:last-child{border-bottom:none;font-weight:600}
+.cob-name{font-size:11px;color:var(--text2)}
+.cob-amt{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.shortfall-chip{display:flex;justify-content:space-between;align-items:center;background:var(--red-bg);border:1px solid var(--red-border);border-radius:7px;padding:9px 12px;margin-bottom:12px}
+.shortfall-label{font-size:11px;color:var(--red);font-weight:600}
+.shortfall-amt{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--red)}
+.escape-header{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:7px}
+.escape{background:var(--green-bg);border:1px solid var(--green-border);border-radius:7px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:all 0.15s}
+.escape:hover{border-color:var(--green)}
+.escape-text{font-size:11px;color:var(--green);font-weight:600;line-height:1.4}
+.escape-impact{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+
+/* ── OBLIGATIONS ── */
+.ob-list{display:flex;flex-direction:column;gap:8px}
+.ob-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s}
+.ob-card:hover{border-color:var(--border2)}
+.ob-rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;border:1.5px solid}
+.ob-rank.r1{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.ob-rank.r2{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.ob-rank.r3{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.ob-rank.r4,.ob-rank.r5{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.ob-info{flex:1;min-width:0}
+.ob-name{font-size:13px;font-weight:600;color:var(--text)}
+.ob-meta{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.ob-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.tag{font-size:9px;font-weight:600;padding:1px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;border:1px solid;letter-spacing:0.03em}
+.tag.rent{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.tag.gst{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
+.tag.loan{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.tag.supplier{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.tag.utility{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.tag.critical{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.ob-score{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;border:1px solid;margin-top:4px}
+.ob-score.high{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.ob-score.med{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.ob-score.low{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.ob-right{text-align:right;flex-shrink:0}
+.ob-amount{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;color:var(--text)}
+.ob-due{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.ob-btns{display:flex;gap:6px;margin-left:10px;flex-shrink:0}
+.btn-draft{background:var(--accent);color:#000;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif}
+.btn-draft:hover{opacity:0.85}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:500}
+.btn-secondary:hover{border-color:var(--border);color:var(--text);background:var(--surface3)}
+
+/* ── RECEIVABLES ── */
+.rec-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.conf-ring{width:30px;height:30px;flex-shrink:0;position:relative}
+.conf-ring svg{transform:rotate(-90deg)}
+.conf-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* ── LOANS ── */
+.loan-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.loan-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.loan-lender{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.loan-type-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;border:1px solid}
+.loan-type-tag.family{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
+.loan-type-tag.friend{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.loan-type-tag.moneylender{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.loan-type-tag.chit{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.loan-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.lm-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;font-family:'JetBrains Mono',monospace}
+.lm-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;margin-top:2px}
+.rc-badge{display:flex;align-items:center;gap:6px;padding:7px 10px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:7px;margin-bottom:8px;font-size:10px;color:var(--amber);font-weight:600;font-family:'JetBrains Mono',monospace}
+.loan-note{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.5}
+.btn-use-buffer{width:100%;padding:9px;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);border-radius:7px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;transition:all 0.15s}
+.btn-use-buffer:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* ── WHAT-IF ── */
+.wi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.wi-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.wi-label{font-size:11px;color:var(--text2);width:200px;flex-shrink:0}
+.wi-input{flex:1;height:34px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:0 12px;color:var(--text)}
+.wi-input:focus{outline:none;border-color:var(--accent)}
+.wi-result-box{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.wi-result-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500}
+.wi-explain{font-size:11px;color:var(--text3);margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:7px;border-left:2px solid var(--accent);line-height:1.6}
+
+/* ── ADD FORM ── */
+.add-form{background:var(--surface);border:1px solid var(--accent-border);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.add-form.visible{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace}
+.form-input{height:34px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:0 11px;color:var(--text)}
+.form-input:focus{outline:none;border-color:var(--accent)}
+.form-select{height:34px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:0 11px;color:var(--text)}
+.form-select:focus{outline:none;border-color:var(--accent)}
+.btn-add{background:var(--accent);color:#000;border-radius:7px;padding:9px 20px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;margin-top:4px}
+.btn-add:hover{opacity:0.85}
+
+/* ── GST PAGE ── */
+.gst-deadline-card{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:12px;padding:20px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto}
+.gst-big-countdown{font-family:'JetBrains Mono',monospace;font-size:56px;font-weight:300;color:var(--amber);line-height:1}
+.gst-countdown-label{font-size:11px;color:var(--amber);font-family:'JetBrains Mono',monospace;margin-top:4px;opacity:0.8}
+.gst-type{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--amber)}
+.gst-due-date{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+.gst-liability-row{display:flex;gap:12px;margin-bottom:14px}
+.gst-lcard{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.gst-lcard-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.gst-lcard-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500}
+.gst-alert-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.gst-alert-bar.a7{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue)}
+.gst-alert-bar.a3{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.gst-alert-bar.a1{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.gst-portal-btn{width:100%;padding:12px;background:var(--amber);color:#000;border-radius:8px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;margin-top:12px}
+.gst-portal-btn:hover{opacity:0.85}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:540px;overflow:hidden;animation:modalIn 0.2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+.modal-x{width:28px;height:28px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text2)}
+.modal-x:hover{background:var(--red-bg);color:var(--red)}
+.modal-body{padding:18px 20px}
+.modal-loading{text-align:center;padding:36px}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-text{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.reasoning-box{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 7px 7px 0;padding:10px 13px;font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+.reasoning-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.email-area{width:100%;min-height:170px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;color:var(--text);resize:vertical;line-height:1.7;font-size:12px}
+.email-area:focus{outline:none;border-color:var(--accent)}
+.email-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.btn-approve{background:var(--accent);color:#000;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif}
+.btn-approve:hover{opacity:0.85}
+.btn-cancel{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:9px 20px;font-size:12px}
+.btn-cancel:hover{border-color:var(--border);color:var(--text)}
+
+/* ── SCENARIO COMPARATOR ── */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.scenario-card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all 0.2s}
+.scenario-card:hover{border-color:var(--accent-border)}
+.scenario-card.selected{border-color:var(--accent);background:var(--accent-bg)}
+.scenario-rank{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.scenario-d2z{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:500;margin-bottom:4px}
+.scenario-d2z.best{color:var(--green)}
+.scenario-d2z.mid{color:var(--amber)}
+.scenario-d2z.worst{color:var(--red)}
+.scenario-order{font-size:10px;color:var(--text3);line-height:1.5}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:11px 16px;border-radius:9px;font-size:12px;font-weight:500;font-family:'Instrument Sans',sans-serif;transform:translateY(60px);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);z-index:300;max-width:300px;border-left:3px solid var(--accent)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── SECTION LABEL ── */
+.section-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.btn-primary{background:var(--accent);color:#000;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif}
+.btn-primary:hover{opacity:0.85}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M3 10C3 6.13 6.13 3 10 3s7 3.13 7 7-3.13 7-7 7-7-3.13-7-7z" stroke="#000" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">ThavanAI</div>
+        <div class="brand-tag">cash intelligence</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="biz-panel">
+    <div class="biz-name">Senthil Garments</div>
+    <div class="biz-loc">retail · T. Nagar, Chennai</div>
+    <div class="biz-balance-label">current balance</div>
+    <div class="biz-balance" id="sbBalance">₹80,000</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="nav('upload',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 4l3-3 3 3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      Import data
+      <span class="nbadge amber">new</span>
+    </div>
+
+    <div class="nav-section-label">Money out</div>
+    <div class="nav-item" onclick="nav('obligations',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      Obligations
+      <span class="nbadge">5</span>
+    </div>
+    <div class="nav-item" onclick="nav('loans',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.1"/><path d="M7 4.5V7l2 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      Informal loans
+    </div>
+    <div class="nav-item" onclick="nav('gst',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      GST compliance
+      <span class="nbadge amber">8d</span>
+    </div>
+
+    <div class="nav-section-label">Money in</div>
+    <div class="nav-item" onclick="nav('receivables',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><path d="M7 13V5M4 8l3-3 3 3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Receivables
+    </div>
+
+    <div class="nav-section-label">Tools</div>
+    <div class="nav-item" onclick="nav('whatif',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M6 2h6v6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      What-if simulator
+    </div>
+    <div class="nav-item" onclick="nav('scenarios',this)">
+      <svg class="ni" viewBox="0 0 14 14" fill="none"><path d="M2 7h3l2-4 2 8 2-4h1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Scenario compare
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="gst-block">
+      <div class="gst-top">
+        <div class="gst-dot"></div>
+        <div class="gst-label">GST-R3B</div>
+      </div>
+      <div class="gst-countdown mono">08<span style="font-size:13px;opacity:0.6"> days</span></div>
+      <div class="gst-detail">Est. liability <span style="color:var(--amber);font-weight:600">₹12,400</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="runway-label">CASH RUNWAY</span>
+    <div class="runway-track">
+      <div class="runway-fill" id="runwayFill" style="width:47%;background:var(--amber)"></div>
+    </div>
+    <div class="d2z-chip amber" id="d2zChip">
+      <div class="d2z-dot" style="background:var(--amber)"></div>
+      <span id="d2zText" class="mono">14 days</span>
+    </div>
+    <div class="topbar-right">
+      <div class="mode-toggle-wrap">
+        <span class="mode-label">OPTIMISTIC</span>
+        <div class="toggle-pill" id="modePill" onclick="toggleMode()"><div class="toggle-thumb"></div></div>
+        <span class="mode-label">CONSERVATIVE</span>
+      </div>
+      <div class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.6 3.4l-1.06 1.06M4.46 11.54l-1.06 1.06M12.6 12.6l-1.06-1.06M4.46 4.46L3.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD PAGE ═══ -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Cash Intelligence Dashboard</div>
+        <div class="page-subtitle">LAST UPDATED · TODAY 09:41 · SENTHIL GARMENTS</div>
+      </div>
+      <button class="btn-primary" onclick="nav('upload',document.querySelector('[onclick*=upload]'))">+ Import data</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card amber">
+        <div class="stat-label">days to zero</div>
+        <div class="stat-value" id="dashD2Z">14</div>
+        <div class="stat-sub">Amber zone · watch closely</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">total payables / 30d</div>
+        <div class="stat-value">₹97,400</div>
+        <div class="stat-sub">5 obligations pending</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">expected inflows / 30d</div>
+        <div class="stat-value">₹55,000</div>
+        <div class="stat-sub">3 receivables tracked</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">informal buffer</div>
+        <div class="stat-value">₹30,000</div>
+        <div class="stat-sub">2 loans available</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title syne">30-day cash flow</span>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--green)"></div>Inflows</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--red)"></div>Outflows</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--blue);border-radius:50%;height:8px;width:8px"></div>Balance</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="crisis-card">
+        <div class="crisis-top" onclick="toggleCrisis()">
+          <div class="crisis-indicator red" id="crisisIndicator"></div>
+          <div class="crisis-text">
+            <div class="crisis-date syne" id="crisisDateTxt">Next tight day: Oct 14</div>
+            <div class="crisis-desc" id="crisisDescTxt">Rent + GST + Karim Fabrics converge</div>
+          </div>
+          <div class="crisis-num">
+            <div class="crisis-days-num red mono" id="crisisDaysNum">8</div>
+            <div class="crisis-days-label">days away</div>
+          </div>
+        </div>
+        <div class="crisis-expanded" id="crisisExpanded">
+          <div class="cob-table">
+            <div class="cob-row"><span class="cob-name">Rent · Landlord</span><span class="cob-amt" style="color:var(--red)">₹25,000</span></div>
+            <div class="cob-row"><span class="cob-name">GST-R3B · Government</span><span class="cob-amt" style="color:var(--purple)">₹12,400</span></div>
+            <div class="cob-row"><span class="cob-name">Karim Fabrics · Supplier</span><span class="cob-amt" style="color:var(--amber)">₹35,000</span></div>
+            <div class="cob-row"><span class="cob-name" style="font-weight:700">Total obligations</span><span class="cob-amt">₹72,400</span></div>
+            <div class="cob-row"><span class="cob-name" style="color:var(--text3)">Projected cash Oct 14</span><span class="cob-amt" style="color:var(--text3)">₹61,000</span></div>
+          </div>
+          <div class="shortfall-chip">
+            <span class="shortfall-label">Cash shortfall on Oct 14</span>
+            <span class="shortfall-amt">−₹11,400</span>
+          </div>
+          <div class="escape-header">AI escape routes</div>
+          <div class="escape" onclick="applyEscape(1)">
+            <div class="escape-text">Request early payment from Murali (₹15,000 due Oct 18)</div>
+            <div class="escape-impact">Runway → 22 days if paid by Oct 13</div>
+          </div>
+          <div class="escape" onclick="applyEscape(2)">
+            <div class="escape-text">Draw ₹11,400 from cousin Suresh buffer (₹20,000 available)</div>
+            <div class="escape-impact">Fully resolves shortfall · runway → 19 days</div>
+          </div>
+          <div class="escape" onclick="applyEscape(3)">
+            <div class="escape-text">Request 5-day extension from Karim Fabrics</div>
+            <div class="escape-impact">3-yr relationship · accepted delays twice · very likely</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid-3">
+      <div class="card">
+        <div class="card-header"><span class="card-title syne">Top obligations</span><span style="font-size:10px;color:var(--text3)" class="mono">by priority score</span></div>
+        <div class="card-body" style="padding:10px 14px">
+          <div id="dashObList" style="display:flex;flex-direction:column;gap:7px"></div>
+          <button class="btn-secondary" style="width:100%;margin-top:10px;font-size:11px" onclick="nav('obligations',document.querySelectorAll('.nav-item')[4])">View all obligations →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title syne">Inflow confidence</span><span style="font-size:10px;color:var(--text3)" class="mono">receivables tracker</span></div>
+        <div class="card-body" style="padding:10px 14px">
+          <div id="dashRecList" style="display:flex;flex-direction:column;gap:7px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title syne">Loan buffers</span><span style="font-size:10px;color:var(--text3)" class="mono">informal capital</span></div>
+        <div class="card-body" style="padding:10px 14px">
+          <div id="dashLoanList" style="display:flex;flex-direction:column;gap:7px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ IMPORT PAGE ═══ -->
+  <div class="page" id="page-upload">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Import financial data</div>
+        <div class="page-subtitle">BANK PDFS · RECEIPT PHOTOS · INVOICES · CSV EXPORTS</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <div class="section-lbl">Bank statements & invoices</div>
+        <div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()" ondragover="dragover(event,'zone1')" ondragleave="dragleave('zone1')" ondrop="drop(event,'zone1','file1')">
+          <svg class="upload-icon" viewBox="0 0 36 36" fill="none"><rect x="4" y="6" width="28" height="24" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 18h12M18 12v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div class="upload-title">Drop PDF or CSV here</div>
+          <div class="upload-sub">Bank statement · Invoice · UPI export<br/>Supported: .pdf .csv .xlsx</div>
+          <input type="file" id="file1" class="upload-input" multiple accept=".pdf,.csv,.xlsx" onchange="handleFiles(event,'zone1')"/>
+        </div>
+        <div class="uploaded-files" id="files1"></div>
+      </div>
+      <div>
+        <div class="section-lbl">Receipt photos (OCR extraction)</div>
+        <div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()" ondragover="dragover(event,'zone2')" ondragleave="dragleave('zone2')" ondrop="drop(event,'zone2','file2')">
+          <svg class="upload-icon" viewBox="0 0 36 36" fill="none"><rect x="4" y="8" width="28" height="22" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="17" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 24l8-6 6 5 5-4 9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="upload-title">Drop receipt images here</div>
+          <div class="upload-sub">Handwritten · printed · WhatsApp photos<br/>Supported: .jpg .png .webp .heic</div>
+          <input type="file" id="file2" class="upload-input" multiple accept=".jpg,.jpeg,.png,.webp,.heic" onchange="handleFiles(event,'zone2')"/>
+        </div>
+        <div class="uploaded-files" id="files2"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title syne">Manual entry</span><span style="font-size:10px;color:var(--text3)" class="mono">quick add transaction</span></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-field"><label class="form-label">Description</label><input class="form-input" id="me_desc" placeholder="e.g. Fabric payment to Karim"/></div>
+          <div class="form-field"><label class="form-label">Amount (₹)</label><input class="form-input" id="me_amt" type="number" placeholder="25000"/></div>
+          <div class="form-field"><label class="form-label">Type</label>
+            <select class="form-select" id="me_type"><option value="payable">Payable (money out)</option><option value="receivable">Receivable (money in)</option></select>
+          </div>
+          <div class="form-field"><label class="form-label">Date</label><input class="form-input" id="me_date" type="date"/></div>
+        </div>
+        <button class="btn-add" onclick="addManualEntry()">Add transaction</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title syne">Parsed transactions</span><span class="mono" style="font-size:10px;color:var(--text3)" id="parsedCount">0 records</span></div>
+      <div class="card-body">
+        <div id="parsedList" style="display:flex;flex-direction:column;gap:6px">
+          <div style="text-align:center;padding:24px;font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace">Upload files or add manual entries to see parsed transactions here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OBLIGATIONS PAGE ═══ -->
+  <div class="page" id="page-obligations">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Obligations</div>
+        <div class="page-subtitle">SORTED BY PRIORITY SCORE · DETERMINISTIC ENGINE</div>
+      </div>
+      <button class="btn-primary" onclick="toggleAddOb()">+ Add obligation</button>
+    </div>
+    <div class="add-form" id="addObForm">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--accent)">NEW OBLIGATION</div>
+      <div class="form-grid">
+        <div class="form-field"><label class="form-label">Counterparty name</label><input class="form-input" id="ob_name" placeholder="e.g. Karim Fabrics"/></div>
+        <div class="form-field"><label class="form-label">Amount (₹)</label><input class="form-input" id="ob_amt" type="number" placeholder="35000"/></div>
+        <div class="form-field"><label class="form-label">Due date</label><input class="form-input" id="ob_date" type="date"/></div>
+        <div class="form-field"><label class="form-label">Type</label><select class="form-select" id="ob_type"><option value="supplier">Supplier</option><option value="rent">Rent</option><option value="utility">Utility</option><option value="loan">Loan repayment</option><option value="gst">GST</option></select></div>
+        <div class="form-field"><label class="form-label">Relationship length</label><select class="form-select" id="ob_rel"><option value="new">New (&lt;6 months)</option><option value="medium">Medium (6m–2y)</option><option value="long">Long-term (2y+)</option></select></div>
+        <div class="form-field"><label class="form-label">Flexibility</label><select class="form-select" id="ob_flex"><option value="none">None — rigid</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High — very flexible</option></select></div>
+      </div>
+      <button class="btn-add" onclick="addObligation()">Add to obligations</button>
+    </div>
+    <div class="ob-list" id="fullObList"></div>
+  </div>
+
+  <!-- ═══ LOANS PAGE ═══ -->
+  <div class="page" id="page-loans">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Informal loans</div>
+        <div class="page-subtitle">FAMILY · FRIENDS · MONEYLENDERS · CHIT FUNDS</div>
+      </div>
+      <button class="btn-primary" onclick="toggleAddLoan()">+ Add loan</button>
+    </div>
+    <div class="add-form" id="addLoanForm">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--accent)">NEW INFORMAL LOAN</div>
+      <div class="form-grid">
+        <div class="form-field"><label class="form-label">Lender name</label><input class="form-input" id="ln_name" placeholder="e.g. Cousin Suresh"/></div>
+        <div class="form-field"><label class="form-label">Amount (₹)</label><input class="form-input" id="ln_amt" type="number" placeholder="20000"/></div>
+        <div class="form-field"><label class="form-label">Loan type</label><select class="form-select" id="ln_type"><option value="family">Family</option><option value="friend">Friend</option><option value="moneylender">Moneylender</option><option value="chit">Chit fund</option></select></div>
+        <div class="form-field"><label class="form-label">Repayment window (days)</label><input class="form-input" id="ln_window" type="number" placeholder="60"/></div>
+      </div>
+      <div class="form-field" style="margin-bottom:10px"><label class="form-label">Notes</label><input class="form-input" id="ln_note" placeholder="e.g. No fixed date, personal favour"/></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <input type="checkbox" id="ln_rc" style="width:14px;height:14px;accent-color:var(--accent)"/>
+        <label for="ln_rc" class="form-label" style="cursor:pointer;text-transform:none;font-size:11px;color:var(--text2)">Mark as relationship-critical (system will never auto-recommend delaying repayment)</label>
+      </div>
+      <button class="btn-add" onclick="addLoan()">Add loan</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px" id="fullLoanList"></div>
+  </div>
+
+  <!-- ═══ GST PAGE ═══ -->
+  <div class="page" id="page-gst">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">GST compliance</div>
+        <div class="page-subtitle">FILING COUNTDOWN · LIABILITY ESTIMATOR · ALERTS</div>
+      </div>
+    </div>
+    <div class="gst-deadline-card">
+      <div>
+        <div class="gst-type syne">GST-R3B Filing</div>
+        <div class="gst-due-date mono">Due: 20th October 2025</div>
+        <div style="margin-top:16px;font-size:11px;color:var(--amber);opacity:0.8">Days remaining</div>
+        <div class="gst-big-countdown mono">08</div>
+        <div class="gst-countdown-label mono">days · 07 hours · 23 mins</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px">STATUS</div>
+        <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono',monospace">AMBER · WATCH</div>
+      </div>
+    </div>
+
+    <div class="gst-liability-row">
+      <div class="gst-lcard">
+        <div class="gst-lcard-label">Output tax (sales)</div>
+        <div class="gst-lcard-val" style="color:var(--red)">₹18,600</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">Based on 12 invoices this month</div>
+      </div>
+      <div class="gst-lcard">
+        <div class="gst-lcard-label">Input credit (purchases)</div>
+        <div class="gst-lcard-val" style="color:var(--green)">₹6,200</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">7 purchase invoices with GST</div>
+      </div>
+      <div class="gst-lcard">
+        <div class="gst-lcard-label">Net liability estimate</div>
+        <div class="gst-lcard-val" style="color:var(--amber)">₹12,400</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">±15% margin · confirm with CA</div>
+      </div>
+      <div class="gst-lcard">
+        <div class="gst-lcard-label">Cash available to pay</div>
+        <div class="gst-lcard-val" style="color:var(--green)">₹80,000</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px">Sufficient for GST payment</div>
+      </div>
+    </div>
+
+    <div class="section-lbl">Alert timeline</div>
+    <div class="gst-alert-bar a7"><span class="mono">7 DAYS</span><span>Informational — GST due in one week. Estimate calculated. Start preparing.</span></div>
+    <div class="gst-alert-bar a3"><span class="mono">3 DAYS</span><span>Warning — Verify liability with CA. Ensure cash reserved for payment.</span></div>
+    <div class="gst-alert-bar a1"><span class="mono">1 DAY</span><span style="font-weight:700">Critical — File tomorrow. Direct link to GST portal below.</span></div>
+
+    <div style="margin-top:14px">
+      <div class="section-lbl">Upcoming GST deadlines</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="stat-card amber"><div class="stat-label">GST-R3B (monthly)</div><div class="stat-value" style="font-size:14px">Oct 20</div><div class="stat-sub mono" style="font-size:9px">8 days · ₹12,400</div></div>
+        <div class="stat-card blue"><div class="stat-label">GST-R1 (monthly)</div><div class="stat-value" style="font-size:14px">Nov 11</div><div class="stat-sub mono" style="font-size:9px">30 days</div></div>
+        <div class="stat-card blue"><div class="stat-label">GST-R3B (November)</div><div class="stat-value" style="font-size:14px">Nov 20</div><div class="stat-sub mono" style="font-size:9px">39 days</div></div>
+      </div>
+    </div>
+
+    <button class="gst-portal-btn" onclick="showToast('Opening GST portal...')">File on GST Portal →</button>
+  </div>
+
+  <!-- ═══ RECEIVABLES PAGE ═══ -->
+  <div class="page" id="page-receivables">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Receivables</div>
+        <div class="page-subtitle">CONFIDENCE-WEIGHTED INFLOW TRACKER</div>
+      </div>
+      <button class="btn-primary" onclick="toggleAddRec()">+ Add receivable</button>
+    </div>
+    <div class="add-form" id="addRecForm">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--accent)">NEW RECEIVABLE</div>
+      <div class="form-grid">
+        <div class="form-field"><label class="form-label">Customer name</label><input class="form-input" id="rec_name" placeholder="e.g. Customer Murali"/></div>
+        <div class="form-field"><label class="form-label">Amount (₹)</label><input class="form-input" id="rec_amt" type="number" placeholder="15000"/></div>
+        <div class="form-field"><label class="form-label">Expected date</label><input class="form-input" id="rec_date" type="date"/></div>
+        <div class="form-field"><label class="form-label">Confidence (%)</label><input class="form-input" id="rec_conf" type="number" min="0" max="100" placeholder="85"/></div>
+      </div>
+      <button class="btn-add" onclick="addReceivable()">Add receivable</button>
+    </div>
+    <div class="ob-list" id="fullRecList" style="margin-top:12px"></div>
+  </div>
+
+  <!-- ═══ WHAT-IF PAGE ═══ -->
+  <div class="page" id="page-whatif">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">What-if simulator</div>
+        <div class="page-subtitle">ADJUST VARIABLES · INSTANT D2Z RECALCULATION · NO API</div>
+      </div>
+    </div>
+    <div class="wi-card">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:14px">Adjust scenario parameters</div>
+      <div class="wi-row"><span class="wi-label">Current bank balance (₹)</span><input class="wi-input" id="wi_bal" type="number" value="80000" oninput="recalcWI()"/></div>
+      <div class="wi-row"><span class="wi-label">Murali payment (days early)</span><input class="wi-input" id="wi_murali" type="number" value="0" min="0" max="7" oninput="recalcWI()"/></div>
+      <div class="wi-row"><span class="wi-label">Karim Fabrics delay (days)</span><input class="wi-input" id="wi_karim" type="number" value="0" min="0" max="14" oninput="recalcWI()"/></div>
+      <div class="wi-row"><span class="wi-label">Draw from Suresh loan (₹)</span><input class="wi-input" id="wi_loan" type="number" value="0" min="0" max="20000" oninput="recalcWI()"/></div>
+      <div class="wi-row"><span class="wi-label">Safety buffer threshold (₹)</span><input class="wi-input" id="wi_buf" type="number" value="10000" oninput="recalcWI()"/></div>
+      <div class="wi-result-box">
+        <div>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px">PROJECTED DAYS TO ZERO</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace">Based on your adjustments</div>
+        </div>
+        <div id="wiResultVal" class="wi-result-val" style="color:var(--amber)">14 days</div>
+      </div>
+      <div class="wi-explain" id="wiExplain">Current scenario: Oct 14 remains the critical tight day. Cash drops to ₹11,000 on that date — below the ₹10,000 safety buffer. Adjust parameters to explore escape routes.</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCENARIO COMPARE PAGE ═══ -->
+  <div class="page" id="page-scenarios">
+    <div class="page-header">
+      <div>
+        <div class="page-title syne">Scenario comparator</div>
+        <div class="page-subtitle">3 PAYMENT ORDERINGS · PROJECTED RUNWAY · PICK BEST</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-header"><span class="card-title syne">Payment ordering scenarios</span><span class="mono" style="font-size:10px;color:var(--text3)">tap a scenario to select</span></div>
+      <div class="card-body">
+        <div class="scenario-grid">
+          <div class="scenario-card selected" onclick="selectScenario(this)">
+            <div class="scenario-rank mono">SCENARIO A · RECOMMENDED</div>
+            <div class="scenario-d2z best mono">22 days</div>
+            <div class="scenario-order">1. Rent (Oct 10)<br/>2. Karim extension → Oct 19<br/>3. GST (Oct 20)<br/>4. Murali nudge early → Oct 13</div>
+          </div>
+          <div class="scenario-card" onclick="selectScenario(this)">
+            <div class="scenario-rank mono">SCENARIO B</div>
+            <div class="scenario-d2z mid mono">17 days</div>
+            <div class="scenario-order">1. Rent (Oct 10)<br/>2. GST (Oct 20)<br/>3. Karim Fabrics (Oct 14)<br/>4. Draw Suresh loan ₹11k</div>
+          </div>
+          <div class="scenario-card" onclick="selectScenario(this)">
+            <div class="scenario-rank mono">SCENARIO C · WORST</div>
+            <div class="scenario-d2z worst mono">8 days</div>
+            <div class="scenario-order">1. Karim Fabrics (Oct 14)<br/>2. Rent (Oct 10)<br/>3. GST (Oct 20)<br/>4. No adjustments</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:8px">
+          <div style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:4px">SELECTED: SCENARIO A · AI REASONING</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6" id="scenarioReasoning">Scenario A maximises runway by combining two actions: requesting an early nudge to Murali (4 days early, 92% confidence customer) and a 5-day extension from Karim Fabrics (accepted delays twice in 3-year history). This avoids drawing from the informal Suresh buffer, preserving it for future crises. Runway improves from 14 → 22 days.</div>
+        </div>
+        <button class="btn-primary" style="margin-top:12px" onclick="approveScenario()">Approve scenario A — draft all emails</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ═══ EMAIL MODAL ═══ -->
+<div class="modal-bg" id="emailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title syne" id="modalTitle">Draft delay request</span>
+      <div class="modal-x" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="modalLoading" class="modal-loading">
+        <div class="spinner"></div>
+        <div class="spinner-text">ThavanAI is generating your email...</div>
+      </div>
+      <div id="modalContent" style="display:none">
+        <div class="reasoning-label">AI reasoning</div>
+        <div class="reasoning-box" id="modalReasoning"></div>
+        <div class="email-label">Draft email — edit before approving</div>
+        <textarea class="email-area" id="modalEmailBody"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-approve" id="approveEmailBtn" style="display:none" onclick="approveEmail()">Approve & mark sent</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+let obligations = [
+  {id:1,name:'Landlord (shop rent)',type:'rent',amount:25000,dueDate:'Oct 10',daysUntil:3,penaltyScore:10,urgencyScore:9,flexScore:1,relYears:5,relType:'landlord',flexHistory:'never',score:9.1,relCritical:false},
+  {id:2,name:'Karim Fabrics',type:'supplier',amount:35000,dueDate:'Oct 14',daysUntil:7,penaltyScore:8,urgencyScore:7,flexScore:7,relYears:3,relType:'supplier',flexHistory:'twice',score:7.6,relCritical:false},
+  {id:3,name:'GST-R3B October',type:'gst',amount:12400,dueDate:'Oct 20',daysUntil:13,penaltyScore:10,urgencyScore:6,flexScore:0,relYears:0,relType:'government',flexHistory:'never',score:7.2,relCritical:false},
+  {id:4,name:'Raja Packaging',type:'supplier',amount:8000,dueDate:'Oct 22',daysUntil:15,penaltyScore:4,urgencyScore:5,flexScore:8,relYears:1,relType:'supplier',flexHistory:'once',score:4.8,relCritical:false},
+  {id:5,name:'Electricity board',type:'utility',amount:3200,dueDate:'Oct 25',daysUntil:18,penaltyScore:6,urgencyScore:4,flexScore:2,relYears:0,relType:'utility',flexHistory:'none',score:4.6,relCritical:false},
+];
+
+let receivables = [
+  {id:1,name:'Customer Murali (wholesale)',amount:15000,expectedDate:'Oct 18',daysUntil:11,confidence:92,status:'confirmed'},
+  {id:2,name:'Retail advance (Priya)',amount:8000,expectedDate:'Oct 21',daysUntil:14,confidence:78,status:'verbal'},
+  {id:3,name:'Saravana Stores (B2B)',amount:32000,expectedDate:'Oct 30',daysUntil:23,confidence:65,status:'invoice_sent'},
+];
+
+let loans = [
+  {id:1,lender:'Cousin Suresh',type:'family',total:20000,available:20000,borrowed:'Oct 1',window:60,relCritical:true,note:'No fixed date. Personal favour. Repay when stable.'},
+  {id:2,lender:'Rajan (friend, shop owner)',type:'friend',total:10000,available:10000,borrowed:'Sep 15',window:90,relCritical:false,note:'Agreed to repay by year end. Low pressure.'},
+];
+
+let parsedTransactions = [];
+let uploadedFiles = {zone1:[],zone2:[]};
+let currentD2Z = 14;
+let draftOb = null;
+const API_KEY = 'YOUR_ANTHROPIC_API_KEY_HERE';
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  const btn = document.getElementById('themeBtn');
+  if (isDark) {
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 8.5A5.5 5.5 0 116.5 3c-.5 2.5.5 5 2.5 6.5A5.5 5.5 0 0013 8.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+    btn.title = 'Switch to dark (scientific) theme';
+  } else {
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.6 3.4l-1.06 1.06M4.46 11.54l-1.06 1.06M12.6 12.6l-1.06-1.06M4.46 4.46L3.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
+    btn.title = 'Switch to light theme';
+  }
+  refreshChartColors();
+}
+
+// ═══════════════════════════════════════════════════
+// RUNWAY + D2Z
+// ═══════════════════════════════════════════════════
+function setD2Z(days) {
+  currentD2Z = days;
+  const pct = Math.min(100, Math.max(4, (days / 45) * 100));
+  const fill = document.getElementById('runwayFill');
+  const chip = document.getElementById('d2zChip');
+  const txt = document.getElementById('d2zText');
+  const dashVal = document.getElementById('dashD2Z');
+  dashVal.textContent = days;
+  txt.textContent = days + ' days';
+  if (days >= 30) {
+    fill.style.width = pct+'%'; fill.style.background = 'var(--green)';
+    chip.className = 'd2z-chip green'; chip.querySelector('.d2z-dot').style.background = 'var(--green)';
+    dashVal.parentElement.className = 'stat-card green';
+    dashVal.nextElementSibling.textContent = 'Green zone · healthy';
+  } else if (days >= 10) {
+    fill.style.width = pct+'%'; fill.style.background = 'var(--amber)';
+    chip.className = 'd2z-chip amber'; chip.querySelector('.d2z-dot').style.background = 'var(--amber)';
+    dashVal.parentElement.className = 'stat-card amber';
+    dashVal.nextElementSibling.textContent = 'Amber zone · watch closely';
+  } else {
+    fill.style.width = pct+'%'; fill.style.background = 'var(--red)';
+    chip.className = 'd2z-chip red'; chip.querySelector('.d2z-dot').style.background = 'var(--red)';
+    dashVal.parentElement.className = 'stat-card red';
+    dashVal.nextElementSibling.textContent = 'Red zone · act now';
+  }
+}
+
+function toggleMode() {
+  const pill = document.getElementById('modePill');
+  pill.classList.toggle('on');
+  const isConservative = pill.classList.contains('on');
+  setD2Z(isConservative ? 11 : 14);
+  showToast(isConservative ? 'Conservative mode: D2Z = 11 days (high-confidence receivables only)' : 'Optimistic mode: D2Z = 14 days (all receivables counted)');
+}
+
+// ═══════════════════════════════════════════════════
+// CRISIS CARD
+// ═══════════════════════════════════════════════════
+let crisisOpen = false;
+function toggleCrisis() {
+  crisisOpen = !crisisOpen;
+  document.getElementById('crisisExpanded').style.display = crisisOpen ? 'block' : 'none';
+}
+
+function applyEscape(n) {
+  const msgs = ['','Murali early payment request applied. Runway recalculated.','Suresh buffer draw applied. Shortfall fully resolved.','Karim extension requested. Oct 14 pressure reduced.'];
+  const days = [0, 22, 19, 18];
+  showToast(msgs[n]);
+  setD2Z(days[n]);
+  if (n === 1) {
+    document.getElementById('crisisDateTxt').textContent = 'Next tight day: Nov 2';
+    document.getElementById('crisisDescTxt').textContent = 'Electricity + packaging overlap';
+    document.getElementById('crisisDaysNum').textContent = '19';
+    document.getElementById('crisisDaysNum').className = 'crisis-days-num amber mono';
+    document.getElementById('crisisIndicator').className = 'crisis-indicator amber';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════
+let mainChartInst = null;
+function buildChart() {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const labels = [], inArr = [], outArr = [], balArr = [];
+  let cash = 80000;
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    labels.push((d.getDate()) + '/' + (d.getMonth()+1));
+    let inp=0, out=0;
+    if(i===3) out=25000;
+    if(i===7) out=35000;
+    if(i===11){inp=15000;out=12400;}
+    if(i===14) inp=8000;
+    if(i===15) out=8000;
+    if(i===18) out=3200;
+    if(i===23) inp=32000;
+    inArr.push(inp); outArr.push(-out); cash=cash+inp-out; balArr.push(cash);
+  }
+  const gc = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const tc = isDark ? '#5A6070' : '#9C9890';
+  if (mainChartInst) mainChartInst.destroy();
+  mainChartInst = new Chart(ctx, {
+    data:{labels,datasets:[
+      {type:'bar',data:inArr,backgroundColor:isDark?'rgba(0,229,160,0.55)':'rgba(0,102,68,0.5)',borderRadius:3,order:2},
+      {type:'bar',data:outArr,backgroundColor:isDark?'rgba(255,77,106,0.55)':'rgba(192,25,42,0.5)',borderRadius:3,order:2},
+      {type:'line',data:balArr,borderColor:isDark?'#4D9EFF':'#1A4A8A',borderWidth:1.5,pointRadius:0,tension:0.35,yAxisID:'y2',order:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:isDark?'#22262D':'#fff',titleColor:isDark?'#E8EAF0':'#1A1814',bodyColor:isDark?'#9BA3B2':'#6B6560',borderColor:isDark?'#343840':'#DDD9CE',borderWidth:1}},
+    scales:{
+      x:{grid:{color:gc},ticks:{font:{size:9,family:'JetBrains Mono'},maxTicksLimit:8,color:tc},border:{display:false}},
+      y:{grid:{color:gc},ticks:{font:{size:9,family:'JetBrains Mono'},color:tc,callback:v=>v===0?'0':'₹'+(Math.abs(v)/1000).toFixed(0)+'k'},border:{display:false}},
+      y2:{position:'right',grid:{display:false},ticks:{font:{size:9,family:'JetBrains Mono'},color:isDark?'#4D9EFF':'#1A4A8A',callback:v=>'₹'+(v/1000).toFixed(0)+'k'},border:{display:false}},
+    }}
+  });
+}
+function refreshChartColors() { setTimeout(buildChart, 100); }
+
+// ═══════════════════════════════════════════════════
+// RENDER OBLIGATIONS
+// ═══════════════════════════════════════════════════
+function obHTML(ob, compact=false) {
+  const sc = ob.score;
+  const sClass = sc>=8?'high':sc>=5?'med':'low';
+  const rClass = ob.id<=1?'r1':ob.id<=3?'r2':ob.id<=4?'r3':'r4';
+  const tags = `<span class="tag ${ob.type}">${ob.type.toUpperCase()}</span>${ob.relCritical?'<span class="tag critical">CRITICAL</span>':''}`;
+  if (compact) return `<div class="ob-card" style="padding:9px 12px">
+    <div class="ob-rank ${rClass}" style="width:24px;height:24px;font-size:10px">${ob.id}</div>
+    <div class="ob-info"><div class="ob-name" style="font-size:12px">${ob.name}</div><div class="ob-meta">${ob.dueDate} · <span class="ob-score ${sClass}" style="display:inline-flex">${sc.toFixed(1)}</span></div></div>
+    <div class="ob-right"><div class="ob-amount" style="font-size:13px">₹${ob.amount.toLocaleString('en-IN')}</div></div>
+  </div>`;
+  return `<div class="ob-card" id="ob_${ob.id}">
+    <div class="ob-rank ${rClass}">${ob.id}</div>
+    <div class="ob-info">
+      <div class="ob-name">${ob.name}</div>
+      <div class="ob-meta">${ob.type} · ${ob.relYears>0?ob.relYears+'-yr relationship':'New relationship'} · flexibility: ${ob.flexHistory}</div>
+      <div class="ob-tags">${tags}<span class="ob-score ${sClass}">SCORE ${sc.toFixed(1)}</span></div>
+    </div>
+    <div class="ob-right"><div class="ob-amount">₹${ob.amount.toLocaleString('en-IN')}</div><div class="ob-due">${ob.dueDate}</div></div>
+    <div class="ob-btns">
+      <button class="btn-draft" onclick="openModal(${ob.id})">Draft email</button>
+      <button class="btn-secondary" onclick="markDelayed(${ob.id})">Delay</button>
+    </div>
+  </div>`;
+}
+
+function renderAllOb() {
+  const full = document.getElementById('fullObList');
+  if (full) full.innerHTML = obligations.map(o=>obHTML(o)).join('');
+  const dash = document.getElementById('dashObList');
+  if (dash) dash.innerHTML = obligations.slice(0,3).map(o=>obHTML(o,true)).join('');
+}
+
+function toggleAddOb() {
+  const f = document.getElementById('addObForm');
+  f.classList.toggle('visible');
+}
+
+function addObligation() {
+  const name = document.getElementById('ob_name').value.trim();
+  const amt = parseInt(document.getElementById('ob_amt').value)||0;
+  if (!name||!amt){showToast('Please fill name and amount');return;}
+  const relMap={new:0,medium:1,long:3};
+  const flexMap={none:0,low:2,medium:5,high:8};
+  const relYrs = relMap[document.getElementById('ob_rel').value];
+  const flex = flexMap[document.getElementById('ob_flex').value];
+  const sc = ((10*0.35)+(5*0.30)+(flex/10*10*0.20)+(amt/50000*10*0.15)).toFixed(1);
+  const newOb = {id:obligations.length+1,name,type:document.getElementById('ob_type').value,amount:amt,dueDate:'Oct 28',daysUntil:21,penaltyScore:6,urgencyScore:5,flexScore:flex,relYears:relYrs,relType:'supplier',flexHistory:'once',score:parseFloat(sc),relCritical:false};
+  obligations.push(newOb);
+  obligations.sort((a,b)=>b.score-a.score);
+  obligations.forEach((o,i)=>o.id=i+1);
+  renderAllOb();
+  document.getElementById('addObForm').classList.remove('visible');
+  showToast(name + ' added · priority score ' + sc);
+}
+
+function markDelayed(id) {
+  const ob = obligations.find(o=>o.id===id);
+  showToast(ob.name + ' — 5-day delay request queued');
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER RECEIVABLES
+// ═══════════════════════════════════════════════════
+function confRingHTML(conf, color) {
+  const r=11, c=2*Math.PI*r, filled=c*(conf/100);
+  return `<div class="conf-ring"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="${r}" fill="none" stroke="var(--border)" stroke-width="2.5"/><circle cx="15" cy="15" r="${r}" fill="none" stroke="${color}" stroke-width="2.5" stroke-dasharray="${filled} ${c}" stroke-linecap="round"/></svg><div class="conf-text" style="color:${color};font-size:7px">${conf}%</div></div>`;
+}
+
+function recHTML(r, compact=false) {
+  const color = r.confidence>=80?'var(--green)':r.confidence>=60?'var(--amber)':'var(--red)';
+  if(compact) return `<div class="rec-card" style="padding:9px 12px">${confRingHTML(r.confidence,color)}<div class="ob-info"><div class="ob-name" style="font-size:12px">${r.name}</div><div class="ob-meta">${r.expectedDate}</div></div><div class="ob-right"><div class="ob-amount" style="font-size:13px;color:var(--green)">₹${r.amount.toLocaleString('en-IN')}</div></div></div>`;
+  return `<div class="rec-card">
+    ${confRingHTML(r.confidence,color)}
+    <div class="ob-info"><div class="ob-name">${r.name}</div><div class="ob-meta">${r.expectedDate} · ${r.status.replace(/_/g,' ')}</div></div>
+    <div class="ob-right"><div class="ob-amount" style="color:var(--green)">₹${r.amount.toLocaleString('en-IN')}</div><div class="ob-due">${r.confidence}% confidence</div></div>
+    <div class="ob-btns"><button class="btn-draft" onclick="draftNudge('${r.name}',${r.amount})">Nudge early</button></div>
+  </div>`;
+}
+
+function renderAllRec() {
+  const full = document.getElementById('fullRecList');
+  if(full) full.innerHTML = receivables.map(r=>recHTML(r)).join('');
+  const dash = document.getElementById('dashRecList');
+  if(dash) dash.innerHTML = receivables.map(r=>recHTML(r,true)).join('');
+}
+
+function toggleAddRec() {
+  document.getElementById('addRecForm').classList.toggle('visible');
+}
+
+function addReceivable() {
+  const name=document.getElementById('rec_name').value.trim();
+  const amt=parseInt(document.getElementById('rec_amt').value)||0;
+  const conf=parseInt(document.getElementById('rec_conf').value)||70;
+  if(!name||!amt){showToast('Please fill name and amount');return;}
+  receivables.push({id:receivables.length+1,name,amount:amt,expectedDate:'Oct 28',daysUntil:21,confidence:conf,status:'manual_entry'});
+  renderAllRec();
+  document.getElementById('addRecForm').classList.remove('visible');
+  showToast(name+' added to receivables');
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER LOANS
+// ═══════════════════════════════════════════════════
+function loanHTML(l, compact=false) {
+  if(compact) return `<div class="loan-card" style="padding:9px 12px">
+    <div class="loan-header" style="margin-bottom:4px"><span class="loan-lender syne" style="font-size:12px">${l.lender}</span><span class="loan-type-tag ${l.type}">${l.type.toUpperCase()}</span></div>
+    <div style="display:flex;gap:12px"><div><div class="lm-label">Available</div><div class="lm-val" style="font-size:14px;color:var(--green)">₹${l.available.toLocaleString('en-IN')}</div></div><div><div class="lm-label">Window</div><div class="lm-val" style="font-size:14px">${l.window}d</div></div></div>
+  </div>`;
+  return `<div class="loan-card">
+    <div class="loan-header"><span class="loan-lender syne">${l.lender}</span><span class="loan-type-tag ${l.type}">${l.type.toUpperCase()}</span></div>
+    <div class="loan-metrics">
+      <div><div class="lm-label">Borrowed</div><div class="lm-val">₹${l.total.toLocaleString('en-IN')}</div></div>
+      <div><div class="lm-label">Available</div><div class="lm-val" style="color:var(--green)">₹${l.available.toLocaleString('en-IN')}</div></div>
+      <div><div class="lm-label">Repay window</div><div class="lm-val" style="font-size:13px">${l.window} days</div></div>
+    </div>
+    ${l.relCritical?`<div class="rc-badge">REL-CRITICAL — system will never auto-recommend delaying this repayment</div>`:''}
+    <div class="loan-note">${l.note}</div>
+    <button class="btn-use-buffer" onclick="useLoan('${l.lender}',${l.available})">Use as crisis buffer → escape route</button>
+  </div>`;
+}
+
+function renderAllLoans() {
+  const full = document.getElementById('fullLoanList');
+  if(full) full.innerHTML = loans.map(l=>loanHTML(l)).join('');
+  const dash = document.getElementById('dashLoanList');
+  if(dash) dash.innerHTML = loans.map(l=>loanHTML(l,true)).join('');
+}
+
+function toggleAddLoan() {
+  document.getElementById('addLoanForm').classList.toggle('visible');
+}
+
+function addLoan() {
+  const name=document.getElementById('ln_name').value.trim();
+  const amt=parseInt(document.getElementById('ln_amt').value)||0;
+  if(!name||!amt){showToast('Please fill name and amount');return;}
+  loans.push({id:loans.length+1,lender:name,type:document.getElementById('ln_type').value,total:amt,available:amt,borrowed:'Today',window:parseInt(document.getElementById('ln_window').value)||60,relCritical:document.getElementById('ln_rc').checked,note:document.getElementById('ln_note').value||'No notes.'});
+  renderAllLoans();
+  document.getElementById('addLoanForm').classList.remove('visible');
+  showToast(name+' loan added · ₹'+amt.toLocaleString('en-IN')+' available as buffer');
+}
+
+function useLoan(name,amt) {
+  showToast('₹'+amt.toLocaleString('en-IN')+' from '+name+' added as escape route');
+}
+
+// ═══════════════════════════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════════════════════════
+function dragover(e,zone){e.preventDefault();document.getElementById(zone).classList.add('dragover')}
+function dragleave(zone){document.getElementById(zone).classList.remove('dragover')}
+function drop(e,zone,inputId){e.preventDefault();dragleave(zone);const files=e.dataTransfer.files;processFiles(files,zone)}
+
+function handleFiles(e,zone){processFiles(e.target.files,zone)}
+
+function processFiles(files,zone){
+  const container=document.getElementById(zone==='zone1'?'files1':'files2');
+  Array.from(files).forEach(f=>{
+    const ext=f.name.split('.').pop().toLowerCase();
+    const iconClass=ext==='pdf'?'pdf':['jpg','jpeg','png','webp','heic'].includes(ext)?'img':'csv';
+    const size=f.size>1024*1024?(f.size/(1024*1024)).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB';
+    const fileId='f'+Date.now()+Math.random().toString(36).slice(2);
+    const el=document.createElement('div');
+    el.className='uploaded-file';el.id=fileId;
+    el.innerHTML=`<div class="file-icon ${iconClass}">${ext.toUpperCase()}</div><span class="file-name">${f.name}</span><span class="file-size">${size}</span><span class="file-status processing">PARSING</span><div class="file-remove" onclick="removeFile('${fileId}')">✕</div>`;
+    container.appendChild(el);
+    uploadedFiles[zone].push({id:fileId,name:f.name,file:f});
+    setTimeout(()=>{
+      const s=el.querySelector('.file-status');
+      if(s){s.className='file-status done';s.textContent='PARSED';}
+      simulateParsed(f.name);
+    },1400+Math.random()*1000);
+  });
+}
+
+function removeFile(id){const el=document.getElementById(id);if(el)el.remove()}
+
+function simulateParsed(fname){
+  const samples=[
+    {desc:'Bank transfer — SBI',amount:12400,type:'payable',date:'Oct 14'},
+    {desc:'UPI payment received',amount:8000,type:'receivable',date:'Oct 12'},
+    {desc:'Vendor payment',amount:5500,type:'payable',date:'Oct 16'},
+    {desc:'Customer invoice',amount:18000,type:'receivable',date:'Oct 20'},
+  ];
+  const s=samples[Math.floor(Math.random()*samples.length)];
+  parsedTransactions.push({...s,source:fname,id:Date.now()});
+  updateParsedList();
+}
+
+function updateParsedList(){
+  const list=document.getElementById('parsedList');
+  const count=document.getElementById('parsedCount');
+  if(count) count.textContent=parsedTransactions.length+' records';
+  if(!list) return;
+  if(parsedTransactions.length===0){list.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3);font-family:\'JetBrains Mono\',monospace">No records yet</div>';return;}
+  list.innerHTML=parsedTransactions.map(t=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px">
+    <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;border:1px solid;${t.type==='payable'?'background:var(--red-bg);color:var(--red);border-color:var(--red-border)':'background:var(--green-bg);color:var(--green);border-color:var(--green-border)'}">${t.type.toUpperCase()}</span>
+    <span style="flex:1;font-size:12px;color:var(--text)">${t.desc}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:${t.type==='payable'?'var(--red)':'var(--green)'}">₹${t.amount.toLocaleString('en-IN')}</span>
+    <span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">${t.date}</span>
+    <span style="font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.source}</span>
+  </div>`).join('');
+}
+
+function addManualEntry(){
+  const desc=document.getElementById('me_desc').value.trim();
+  const amt=parseInt(document.getElementById('me_amt').value)||0;
+  if(!desc||!amt){showToast('Fill description and amount');return;}
+  const type=document.getElementById('me_type').value;
+  const date=document.getElementById('me_date').value||'Oct 28';
+  parsedTransactions.push({desc,amount:amt,type,date,source:'manual',id:Date.now()});
+  updateParsedList();
+  document.getElementById('me_desc').value='';
+  document.getElementById('me_amt').value='';
+  showToast(desc+' added as '+type);
+}
+
+// ═══════════════════════════════════════════════════
+// EMAIL MODAL
+// ═══════════════════════════════════════════════════
+async function openModal(obId){
+  const ob=obligations.find(o=>o.id===obId);
+  draftOb=ob;
+  document.getElementById('modalTitle').textContent='Draft — '+ob.name;
+  document.getElementById('modalLoading').style.display='block';
+  document.getElementById('modalContent').style.display='none';
+  document.getElementById('approveEmailBtn').style.display='none';
+  document.getElementById('emailModal').classList.add('open');
+
+  const tone=ob.relYears>=3?'warm, informal, like long-term business partners — use first name, personal tone':ob.relYears>=1?'professional and polite':'formal and respectful, since this is a new or short-term relationship';
+  const flexNote=ob.flexHistory==='twice'?'This counterparty has accepted payment delays twice before — very likely to agree.':ob.flexHistory==='once'?'They accepted a delay once before.':'No prior delay history — be extra polite.';
+  const prompt=`Write a payment delay request email to ${ob.name} (a ${ob.relType}) from Senthil Garments, Chennai. We owe ₹${ob.amount.toLocaleString('en-IN')} due ${ob.dueDate}. Request a 5-day extension. Reason: receivables from our customers are delayed this cycle. Tone: ${tone}. ${flexNote} Write ONLY the email body, 4-6 sentences max. No subject line. Sign as "Senthil, Senthil Garments".`;
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:350,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    showEmail(ob,data.content?.[0]?.text||getMockEmail(ob));
+  } catch(e) {
+    showEmail(ob,getMockEmail(ob));
+  }
+}
+
+function getMockEmail(ob){
+  if(ob.relYears>=3) return `${ob.name.split(' ')[0]} bhai,\n\nHope all is well on your end! I'm reaching out about our payment of ₹${ob.amount.toLocaleString('en-IN')} due ${ob.dueDate}. Some of my customers have been running a bit late with payments this month, which has tightened things slightly on my end.\n\nCould we push this to ${ob.dueDate.replace(/\d+/,d=>parseInt(d)+5)}? I'll make sure it reaches you without fail — our 3 years of working together means a lot to me.\n\nThank you for your understanding.\n\nWarmly,\nSenthil, Senthil Garments`;
+  if(ob.type==='gst'||ob.type==='utility') return `[Note: GST and utility payments are non-negotiable. This obligation cannot be delayed. The system has marked it as priority 1.]`;
+  return `Dear ${ob.name},\n\nI hope this message finds you well. I am writing regarding our payment of ₹${ob.amount.toLocaleString('en-IN')} due ${ob.dueDate}.\n\nDue to a temporary delay in receivables from our customers, I would like to kindly request a 5-day extension on this payment. I assure you the full amount will be transferred promptly once received.\n\nThank you for your understanding and cooperation.\n\nRegards,\nSenthil\nSenthil Garments`;
+}
+
+function showEmail(ob,text){
+  const reasoning=`Priority ${ob.score.toFixed(1)}/10 · ${ob.penaltyScore>=8?'High':'Moderate'} penalty risk · ${ob.relYears>0?ob.relYears+'-yr relationship':'New relationship'} · ${ob.flexHistory!=='never'&&ob.flexHistory!=='none'?'Accepted delays '+ob.flexHistory+' before — extension likely.':'No prior delay history — tone is more formal.'} Relationship type: ${ob.relType}.`;
+  document.getElementById('modalReasoning').textContent=reasoning;
+  document.getElementById('modalEmailBody').value=text;
+  document.getElementById('modalLoading').style.display='none';
+  document.getElementById('modalContent').style.display='block';
+  document.getElementById('approveEmailBtn').style.display='inline-block';
+}
+
+async function draftNudge(name,amount){
+  draftOb={id:99,name,amount,dueDate:'Oct 18',relYears:2,flexHistory:'once',penaltyScore:0,score:0,type:'receivable',relType:'customer'};
+  document.getElementById('modalTitle').textContent='Nudge early payment — '+name;
+  document.getElementById('modalLoading').style.display='block';
+  document.getElementById('modalContent').style.display='none';
+  document.getElementById('approveEmailBtn').style.display='none';
+  document.getElementById('emailModal').classList.add('open');
+  const text=`Dear ${name.split('(')[0].trim()},\n\nI hope business is going well for you! Just a quick note about your payment of ₹${amount.toLocaleString('en-IN')} expected around Oct 18.\n\nIf it's at all convenient, receiving it a few days earlier this cycle would be a great help to us. Completely understand if timing doesn't work — just thought I'd check!\n\nThank you as always for your continued support.\n\nWarm regards,\nSenthil, Senthil Garments`;
+  setTimeout(()=>showEmail(draftOb,text),900);
+}
+
+function approveEmail(){
+  closeModal();
+  showToast((draftOb?draftOb.name:'')+ ' — email approved and marked as sent');
+  draftOb=null;
+}
+function closeModal(){document.getElementById('emailModal').classList.remove('open')}
+
+// ═══════════════════════════════════════════════════
+// WHAT-IF
+// ═══════════════════════════════════════════════════
+function recalcWI(){
+  const bal=parseInt(document.getElementById('wi_bal').value)||80000;
+  const murali=parseInt(document.getElementById('wi_murali').value)||0;
+  const karim=parseInt(document.getElementById('wi_karim').value)||0;
+  const loanDraw=parseInt(document.getElementById('wi_loan').value)||0;
+  const buf=parseInt(document.getElementById('wi_buf').value)||10000;
+
+  let cash=bal+loanDraw;
+  const events=[
+    {day:3,out:25000},{day:Math.max(0,7-karim),out:35000},
+    {day:Math.max(1,11-murali),in:15000,out:12400},
+    {day:14,in:8000},{day:15,out:8000},{day:18,out:3200},{day:23,in:32000}
+  ];
+  let d2z=45;
+  for(let i=0;i<45;i++){
+    for(const e of events){if(Math.floor(e.day)===i){cash+=(e.in||0)-(e.out||0);}}
+    if(cash<buf&&d2z===45){d2z=i;break;}
+  }
+  const el=document.getElementById('wiResultVal');
+  el.textContent=d2z+' days';
+  el.style.color=d2z>=30?'var(--green)':d2z>=15?'var(--amber)':'var(--red)';
+  const explains=[];
+  if(murali>0) explains.push('Murali paying '+murali+' day(s) early pulls ₹15,000 inflow forward.');
+  if(karim>0) explains.push('Karim delay of '+karim+' day(s) removes Oct pressure.');
+  if(loanDraw>0) explains.push('Drawing ₹'+loanDraw.toLocaleString('en-IN')+' from Suresh adds buffer.');
+  if(explains.length===0) explains.push('No adjustments. Oct 14 remains the tight day.');
+  explains.push('Projected runway: '+d2z+' days with safety buffer ₹'+buf.toLocaleString('en-IN')+'.');
+  document.getElementById('wiExplain').textContent=explains.join(' ');
+}
+
+// ═══════════════════════════════════════════════════
+// SCENARIOS
+// ═══════════════════════════════════════════════════
+function selectScenario(el){
+  document.querySelectorAll('.scenario-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const reasons=['Scenario A maximises runway by combining Murali early nudge and Karim extension. Best outcome: 22 days.','Scenario B uses the Suresh buffer draw to resolve the Oct 14 shortfall. Runway: 17 days. Preserves supplier relationship.','Scenario C does nothing. Worst case: cash goes negative on Oct 14. Not recommended.'];
+  const idx=[...document.querySelectorAll('.scenario-card')].indexOf(el);
+  document.getElementById('scenarioReasoning').textContent=reasons[idx]||reasons[0];
+}
+
+function approveScenario(){
+  showToast('Scenario A approved — emails queued for Murali and Karim');
+  setTimeout(()=>showToast('All emails drafted and ready for review'),1500);
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('load',()=>{
+  setD2Z(14);
+  buildChart();
+  renderAllOb();
+  renderAllRec();
+  renderAllLoans();
+  updateParsedList();
+});
+</script>
+</body>
+</html>
