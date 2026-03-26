@@ -8,7 +8,7 @@ export const generateAlerts = async () => {
   }
 
   const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
+  const model = ai.getGenerativeModel({ model: "gemini-3-flash-preview£" });
 
   const context = {
     obligations: obligations.map(o => ({ name: o.name, amount: o.amount, dueDate: o.dueDate })),
