@@ -463,8 +463,21 @@ router.post('/ai/whatif-nl', async (req, res) => {
   console.log('[DEBUG] NL WHATIF REQUEST RECEIVED');
   const { prompt, currentParams } = req.body;
   console.log(`[NL WHATIF] Hit: Prompt="${prompt}", KeyPresent=${!!process.env.GEMINI_API_KEY}`);
-  if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: 'LLM not configured.' });
-
+  
+  if (!process.env.GEMINI_API_KEY) {
+    console.log('[NL WHATIF] Using Mock AI Fallback (No Key)');
+    const mockParams = { ...currentParams };
+    const p = prompt.toLowerCase();
+    
+    // Simple Keyword Simulation for Demo
+    if (p.includes('karim')) mockParams.karimDelay = Math.min(14, (mockParams.karimDelay || 0) + 5);
+    if (p.includes('murali')) mockParams.muraliEarly = Math.min(7, (mockParams.muraliEarly || 0) + 3);
+    if (p.includes('draw') || p.includes('suresh') || p.includes('loan')) mockParams.loanDraw = Math.min(20000, (mockParams.loanDraw || 0) + 5000);
+    if (p.includes('buffer') || p.includes('safety')) mockParams.buf = Math.max(0, (mockParams.buf || 10000) + 2000);
+    
+    return res.json(mockParams);
+  }
+  
   try {
     const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const instruction = `

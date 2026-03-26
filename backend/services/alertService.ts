@@ -3,8 +3,25 @@ import { obligations, receivables, parsedTransactions } from '../data/mockData';
 
 export const generateAlerts = async () => {
   if (!process.env.GEMINI_API_KEY) {
-    console.error("[ALERT ENGINE] Gemini API key missing.");
-    return [];
+    console.log("[ALERT ENGINE] Using Mock Alerts (No Key)");
+    return [
+      {
+        metric: "Cash Flow",
+        type: "upward_trend",
+        severity: "low",
+        message: "Consistent 12% growth in receivables",
+        insight: "Your bulk import of 8 transactions strengthened the baseline.",
+        action: "No action needed. Keep maintaining current collections."
+      },
+      {
+        metric: "Upcoming Outflow",
+        type: "anomaly",
+        severity: "medium",
+        message: "Rent and GST converge on Oct 14",
+        insight: "Common peak day for small businesses.",
+        action: "Consider drawing 5k from Suresh loan if murali is late."
+      }
+    ];
   }
 
   const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
