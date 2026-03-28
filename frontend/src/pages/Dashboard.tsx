@@ -152,7 +152,7 @@ export const Dashboard = ({ navigate }: { navigate: (page: string) => void }) =>
       {alerts.length > 0 ? (
         <div className="alerts-container" style={{ marginBottom: 20 }}>
           <div className="section-label syne" style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="pulse-dot"></span> AI INSIGHTS & TRENDS
+            <span className="pulse-dot"></span> AI INSIGHTS & TRENDS {!dashboardState.currentD2Z && <span style={{fontSize: 9, opacity: 0.5}}>(DEMO MODE)</span>}
           </div>
           <div className="alerts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 12 }}>
             {alerts.map((alert, idx) => (
